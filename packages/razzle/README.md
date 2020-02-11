@@ -10,7 +10,7 @@ Universal JavaScript applications are tough to setup. Either you buy into a fram
 - Comes with your favorite ES6 JavaScript goodies (through `babel-preset-razzle`)
 - Comes with the same CSS setup as [create-react-app](https://github.com/facebookincubator/create-react-app)
 - Works with [React](https://github.com/facebook/react), [Preact](https://github.com/developit/preact), [Elm](http://elm-lang.org/), [Reason-React](https://github.com/jaredpalmer/razzle/tree/master/examples/with-reason-react), [Inferno](https://github.com/infernojs), and [Rax](https://github.com/alibaba/rax) as well as [Angular](https://github.com/angular/angular) and [Vue](https://github.com/vuejs/vue) if that's your thing
-- Escape hatches for customization via `.babelrc`, `.eslintrc` and `razzle.config.js`
+- Escape hatches for customization via `.babelrc` and `razzle.config.js`
 - [Jest](https://github.com/facebook/jest) test runner setup with sensible defaults via `razzle test`
 
 ## Quick Start
@@ -74,15 +74,22 @@ If your application is running, and you need to manually restart your server, yo
 
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Quick Start](#quick-start)
+  - [`npm start` or `yarn start`](#npm-start-or-yarn-start)
+  - [`npm run build` or `yarn build`](#npm-run-build-or-yarn-build)
+  - [`npm run start:prod` or `yarn start:prod`](#npm-run-startprod-or-yarn-startprod)
+  - [`npm test` or `yarn test`](#npm-test-or-yarn-test)
+  - [`npm start -- --inspect=[host:port]` or `yarn start -- --inspect=[host:port]`](#npm-start------inspecthostport-or-yarn-start------inspecthostport)
+  - [`npm start -- --inspect-brk=[host:port]` or `yarn start -- --inspect-brk=[host:port]`](#npm-start------inspect-brkhostport-or-yarn-start------inspect-brkhostport)
+  - [`rs`](#rs)
+- [<img src="https://user-images.githubusercontent.com/4060187/37915268-209644d0-30e7-11e8-8ef7-086b529ede8c.png" width="500px" alt="Razzle Hot Restart"/>](#img-src%22httpsuser-imagesgithubusercontentcom406018737915268-209644d0-30e7-11e8-8ef7-086b529ede8cpng%22-width%22500px%22-alt%22razzle-hot-restart%22)
 - [Customization](#customization)
   - [Plugins](#plugins)
     - [Using Plugins](#using-plugins)
     - [Writing Plugins](#writing-plugins)
   - [Customizing Babel Config](#customizing-babel-config)
   - [Extending Webpack](#extending-webpack)
-  - [Extending ESLint](#extending-eslint)
   - [CSS Modules](#css-modules)
-  - [Polyfills](#polyfills)
 - [Environment Variables](#environment-variables)
   - [Build-time Variables](#build-time-variables)
   - [Runtime Variables](#runtime-variables)
@@ -121,7 +128,7 @@ yarn add razzle-plugin-xxxx
 ```js
 //./razzle.config.js
 module.exports = {
-  plugins: ['xxxx'],
+  plugins: ['xxxx']
 };
 ```
 
@@ -184,7 +191,7 @@ module.exports = {
     // do something to config
 
     return config;
-  },
+  }
 };
 ```
 
@@ -200,19 +207,6 @@ module.exports = {
 ```
 
 Last but not least, if you find yourself needing a more customized setup, Razzle is _very_ forkable. There is one webpack configuration factory that is 300 lines of code, and 4 scripts (`build`, `start`, `test`, and `init`). The paths setup is shamelessly taken from [create-react-app](https://github.com/facebookincubator/create-react-app), and the rest of the code related to logging.
-
-### Extending ESLint
-
-Razzle comes with [Create React App's ESLint configuration](https://github.com/facebookincubator/create-react-app/tree/master/packages/eslint-config-react-app). Add a `.eslintrc` file to the root of your project to use your own configuration.
-
-```js
-{
-  "extends": "react-app",
-  "rules": {
-    // modify default rules
-  }
-}
-```
 
 ### CSS Modules
 
@@ -261,7 +255,7 @@ import 'react-app-polyfill/ie11'; // For IE 11 support
 - `process.env.BUILD_TYPE`: `'iso'` for isomorphic/universal applications or `'spa'` for single page applications. The default is `'iso'`. This is set by CLI arguments
 - `process.env.BUILD_TARGET`: either `'client'` or `'server'`
 - `process.env.PUBLIC_PATH`: Only in used in `razzle build`. You can alter the `webpack.config.output.publicPath` of the client assets (bundle, css, and images). This is useful if you plan to serve your assets from a CDN. Make sure to _include_ a trailing slash (e.g. `PUBLIC_PATH=https://cdn.example.com/`). If you are using React and altering the public path, make sure to also [include the `crossorigin` attribute](https://reactjs.org/docs/cdn-links.html#why-the-crossorigin-attribute) on your `<script>` tag in `src/server.js`.
-- `process.env.CLIENT_PUBLIC_PATH`: The `NODE_ENV=development` build's `BUILD_TARGET=client` has a different `PUBLIC_PATH` than `BUILD_TARGET=server`. Default is `http://${process.env.HOST}:${process.env.PORT + 1}/`. This is ignored if running razzle in `spa` mode (only `PUBLIC_PATH` is used).
+- `process.env.CLIENT_PUBLIC_PATH`: The NODE_ENV=development build's BUILD_TARGET=client has a different PUBLIC_PATH than BUILD_TARGET=server. Default is `http://${process.env.HOST}:${process.env.PORT + 1}/`. If you run your development environment on a specific url (e.g. process.env.HOST=10.1.2.3), you can set this to `http://10.1.2.3:3001/`. This is ignored if running razzle in `spa` mode (only `PUBLIC_PATH` is used).
 
 You can create your own custom build-time environment variables. They must start
 with `RAZZLE_`. Any other variables except the ones listed above will be ignored to avoid accidentally exposing a private key on the machine that could have the same name. Changing any environment variables will require you to restart the development server if it is running.
@@ -279,12 +273,12 @@ export const runtimeConfig =
     ? {
         // client
         myThing: window.env.myThing,
-        anotherThing: window.env.anotherThing,
+        anotherThing: window.env.anotherThing
       }
     : {
         // server
         myThing: process.env.MY_THING,
-        anotherThing: process.env.ANOTHER_THING,
+        anotherThing: process.env.ANOTHER_THING
       };
 ```
 

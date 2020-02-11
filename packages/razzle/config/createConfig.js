@@ -8,16 +8,15 @@ const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const StartServerPlugin = require('start-server-webpack-plugin');
-const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const safePostCssParser = require('postcss-safe-parser');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const paths = require('./paths');
 const runPlugin = require('./runPlugin');
 const getClientEnv = require('./env').getClientEnv;
-const nodePath = require('./env').nodePath;
 const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
 const WebpackBar = require('webpackbar');
+const modules = require('./modules');
 
 const postCssOptions = {
   ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
@@ -56,15 +55,6 @@ module.exports = (
     presets: [],
   };
 
-  const hasEslintRc = fs.existsSync(paths.appEslintRc);
-  const mainEslintOptions = {
-    formatter: eslintFormatter,
-    eslintPath: require.resolve('eslint'),
-
-    ignore: false,
-    useEslintrc: true,
-  };
-
   if (!hasBabelRc) {
     mainBabelOptions.presets.push(require.resolve('../babel'));
   }
@@ -76,15 +66,6 @@ module.exports = (
 
   if (hasBabelRc && babelOptions.babelrc) {
     console.log('Using .babelrc defined in your app root');
-  }
-
-  if (hasEslintRc) {
-    console.log('Using .eslintrc defined in your app root');
-  } else {
-    mainEslintOptions.baseConfig = {
-      extends: [require.resolve('eslint-config-react-app')],
-    };
-    mainEslintOptions.useEslintrc = false;
   }
 
   // Define some useful shorthands.
@@ -116,8 +97,7 @@ module.exports = (
     // the users', so we use resolve and resolveLoader.
     resolve: {
       modules: ['node_modules', paths.appNodeModules].concat(
-        // It is guaranteed to exist because we tweak it in `env.js`
-        nodePath.split(path.delimiter).filter(Boolean)
+        modules.additionalModulePaths || []
       ),
       extensions: ['.mjs', '.jsx', '.js', '.json'],
       alias: {
@@ -136,17 +116,6 @@ module.exports = (
       rules: [
         // Disable require.ensure as it's not a standard language feature.
         // { parser: { requireEnsure: false } },
-        {
-          test: /\.(js|jsx|mjs)$/,
-          enforce: 'pre',
-          use: [
-            {
-              options: mainEslintOptions,
-              loader: require.resolve('eslint-loader'),
-            },
-          ],
-          include: paths.appSrc,
-        },
         // Avoid "require is not defined" errors
         {
           test: /\.mjs$/,
@@ -182,7 +151,7 @@ module.exports = (
           loader: require.resolve('file-loader'),
           options: {
             name: 'static/media/[name].[hash:8].[ext]',
-            emitFile: true,
+            emitFile: IS_WEB,
           },
         },
         // "url" loader works like "file" loader except that it embeds assets
@@ -194,7 +163,7 @@ module.exports = (
           options: {
             limit: 10000,
             name: 'static/media/[name].[hash:8].[ext]',
-            emitFile: true,
+            emitFile: IS_WEB,
           },
         },
 
